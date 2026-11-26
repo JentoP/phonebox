@@ -248,8 +248,9 @@ body.pagebar-docked.pagebar-right #dots.pagebar.pb-vertical { left: auto; right:
 .rot-overlay-icon svg { width: 38px; height: 38px; fill: currentColor; }
 body.night #pagePauseOverlay { display: none; }
 
+/* below the status bar and a punch-hole camera, which sit at the top centre of an upright phone */
 #ptitle {
-  position: fixed; left: 50%; top: 10px; transform: translate(-50%, -8px); z-index: 7;
+  position: fixed; left: 50%; top: max(48px, calc(env(safe-area-inset-top, 0px) + 16px)); transform: translate(-50%, -8px); z-index: 7;
   padding: 5px 14px; border-radius: 99px; font-size: 13px; font-weight: 600;
   background: rgba(20, 24, 30, .92); border: 1px solid var(--line);
   opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
@@ -1848,7 +1849,7 @@ html.beat-3 .dc-mic.on { opacity: .7; }
 /* Settings › Display › controls at the top (#181): the page dots and the Allow / Deny buttons move up, for a panel that
    stands below the screen, where the bottom edge is hard to reach */
 body.controls-top #dots { bottom: auto; top: 0; }
-body.controls-top #ptitle { top: 34px; }
+body.controls-top #ptitle { top: max(72px, calc(env(safe-area-inset-top, 0px) + 40px)); }
 /* the space the dots need moves from the bottom to the top */
 body.controls-top .page { padding-top: 17px; padding-bottom: 10px; }
 /* the header stays first; the buttons come right after it, above the request */

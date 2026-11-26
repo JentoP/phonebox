@@ -1509,18 +1509,23 @@ let lastHour12 = null;
 
 export const isPortrait = () => window.innerHeight > window.innerWidth * 1.05;
 
-// Portrait: the same widgets packed in reading order. Their sizes in cells stay the same (portrait cells are about
-// as square as landscape ones). A phone uses 6 columns, so a widget wider than that shrinks; a tablet uses 12,
-// so more widgets sit next to each other. The rows grow to fit.
+// Portrait: the same widgets packed in reading order, keeping their heights in cells. A phone uses 6 columns, a
+// tablet 12. A widget wider than half the columns takes the full width (a 7 × 6 next to a 5 × 6 stacks as two
+// full-width cards instead of leaving a gap beside the narrower one), and a widget then grows sideways into any
+// empty cells to its right, so no row ends in a hole. The rows stretch to fill the screen: a page whose widgets
+// fill 6 rows uses the whole height instead of the top half.
 export function portraitLayout(widgets, cols = 6) {
   const occ = [], pos = new Map();
-  const free = (x, y, w, h) => { for (let r = y; r < y + h; r++) for (let c = x; c < x + w; c++) if (occ[r]?.[c]) return false; return true; };
+  const free = (x, y, w, h) => { for (let r = y; r < y + h; r++) for (let c = x; c < x + w; c++) if (c >= cols || occ[r]?.[c]) return false; return true; };
   const take = (x, y, w, h) => { for (let r = y; r < y + h; r++) { occ[r] = occ[r] || []; for (let c = x; c < x + w; c++) occ[r][c] = true; } };
   for (const w of [...widgets].sort((a, b) => a.y - b.y || a.x - b.x)) {
-    const ww = Math.min(cols, w.w), hh = w.h;
+    const ww = w.w > cols / 2 ? cols : Math.min(cols, w.w), hh = w.h;
     search: for (let y = 0; y < 200; y++) for (let x = 0; x + ww <= cols; x++) if (free(x, y, ww, hh)) { take(x, y, ww, hh); pos.set(w, { x, y, w: ww, h: hh }); break search; }
   }
-  return { pos, rows: Math.max(12, occ.length) };
+  for (const at of pos.values()) {
+    while (free(at.x + at.w, at.y, 1, at.h)) { take(at.x + at.w, at.y, 1, at.h); at.w++; }
+  }
+  return { pos, rows: Math.max(6, occ.length) };
 }
 
 // Settings › Display › More rows on a tablet. Off by default, so an arranged tablet keeps its 12 × 6 pages.
